@@ -1,0 +1,199 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: Install for apt via  HTTPS
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+      
+      
+  - name: Add an apt  gpg key for docker
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: add repository for stable version
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+
+  - name: install docker and  deps
+    apt: 
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io
+    notify:
+      - docker status
+
+  - name: Remove swapfile from /etc/fstab
+    mount:
+      name: "{{ item }}"
+      fstype: swap
+      state: absent
+    with_items:
+      - swap
+      - none
+
+  - name: Disable swap
+    command: swapoff -a
+    when: ansible_swaptotal_mb > 0
+ 
+  - name: Add java
+    apt:
+     name: openjdk-8-jdk
+     state: present
+    
+  - name: Add jenkins repo key
+    apt_key:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      state: present
+    
+  - name: Add jenkins repo
+    apt_repository:
+      repo:  'deb https://pkg.jenkins.io/debian-stable binary/'
+      state: present
+
+  - name: install jenkins
+    apt:
+      name: jenkins
+      state: present
+      
+  - name: add jenkins to docker grp
+    user:
+      name: jenkins
+      group: docker
+      append: yes
+     
+  - name: Start & Enable Jenkins
+    systemd:
+        name: jenkins
+        state: started
+        enabled: true
+
+
+  - name: Sleep for 30 seconds and continue with play
+    wait_for: timeout=30
+
+  - name: Get init password Jenkins
+    shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+    changed_when: false
+    register: adminpwd
+
+  - name: unlock and add admin user
+    jenkins_script:
+     script: |
+      import jenkins.model.*
+      import hudson.security.*
+      def instance = Jenkins.getInstance()
+      def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+      hudsonRealm.createAccount('jenkins', '${user_pwd}')
+      instance.setSecurityRealm(hudsonRealm)
+      def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+      strategy.setAllowAnonymousRead(false)
+      instance.setAuthorizationStrategy(strategy)
+      instance.save()
+     args:
+      user_pwd: "{{ admin_user_pass }}"
+     user: admin
+     password: "{{ adminpwd.stdout }}"
+
+  - name: complete setup wizard
+    jenkins_script:
+     script: |
+      import static jenkins.model.Jenkins.instance as jenkins
+      import jenkins.install.InstallState
+      if (!jenkins.installState.isSetupComplete()) {
+        InstallState.INITIAL_SETUP_COMPLETED.initializeState()
+      }
+     user: admin
+     password: "{{ adminpwd.stdout }}"
+
+  - name: get jenkins-cli
+    shell: wget http://{{node_ip}}:8080/jnlpJars/jenkins-cli.jar
+
+  -  name: disable csrf so we can install plugin
+     lineinfile:
+       path: /etc/default/jenkins
+       regexp: ‘JAVA_ARGS=”- Djava.awt.headless=true’
+       line: JAVA_ARGS=”- Djava.awt.headless=true – Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true”
+
+ 
+  - name: restart jenkins
+    service:
+     name: jenkins
+     state: restarted
+
+  - name: Sleep for 30 seconds and continue with play
+    wait_for: timeout=30
+    
+  - name: install plugin
+    jenkins_plugin:
+     name: "{{ item }}"
+     state: latest
+     url_username: admin
+     url_password: "{{ adminpwd.stdout }}"
+     url: http://{{node_ip}}:8080/
+     with_dependencies: yes
+    with_items: 
+        - git
+        - git-client
+        - git-server
+        - ssh-agent
+        - scm-api
+        - workflow-cps-plugin
+        - workflow-job
+        - pipeline-model-definition
+        - docker-plugin
+        - docker-workflow
+        - ansible
+  - name: restart jenkins
+    service:
+     name: jenkins
+     state: restarted
+
+  - name: Sleep for 30 seconds and continue with play
+    wait_for: timeout=30
+     
+  - name: setup SCM job
+    jenkins_script:
+     script: |
+              import hudson.plugins.git.*;
+              import hudson.triggers.*;
+              def scm = new hudson.plugins.git.GitSCM("http://github.com/eadg1/testWeb.git")
+              scm.branches = [new BranchSpec("*/main")];
+
+              def flowDefinition = new org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition(scm, "Jenkinsfile")
+
+              def parent = Jenkins.instance
+              def job = new org.jenkinsci.plugins.workflow.job.WorkflowJob(parent, "TestJob")
+              job.definition = flowDefinition
+              
+              SCMTrigger trigger = new SCMTrigger("H/5 * * * *");
+              job.addTrigger(trigger);
+
+
+              parent.reload()
+
+
+     url: http://{{node_ip}}:8080/
+     user: admin
+     password: "{{ adminpwd.stdout }}"
+
+
+  handlers:
+    - name: docker status
+      service: name=docker state=started
