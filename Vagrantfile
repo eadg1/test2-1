@@ -1,4 +1,4 @@
-IMAGE_NAME = "ubuntu/xenial64"
+IMAGE_NAME = "ubuntu/bionic64"
 N = 1
 
 require 'yaml'
@@ -19,11 +19,27 @@ Vagrant.configure("2") do |config|
         jenkins.vm.network "private_network", ip: "192.168.2.10"
         jenkins.vm.hostname = "jenkins"
         jenkins.vm.provision "ansible_local" do |ansible|
-            ansible.version = "2.9.6"
+            ansible.version="2.9.15"
             ansible.playbook = "setup/jenkins-playbook.yml"
             ansible.extra_vars = {
                 node_ip: "192.168.2.10",
-                admin_user_pass:settings["admin_user_pass"]
+                admin_user_pass: settings["admin_user_pass"],
             }
         end
     end
+
+
+
+    config.vm.define "web" do |web|
+        web.vm.box = IMAGE_NAME
+        web.vm.network "private_network", ip: "192.168.2.21"
+        web.vm.hostname = "web"
+        web.vm.provision "ansible_local" do |ansible|
+            ansible.version = "2.9.15"
+            ansible.playbook = "setup/web-playbook.yml"
+            ansible.extra_vars = {
+                node_ip: "192.168.2.21",
+            }
+        end
+    end
+end

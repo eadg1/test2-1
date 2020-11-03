@@ -122,9 +122,6 @@
      user: admin
      password: "{{ adminpwd.stdout }}"
 
-  - name: get jenkins-cli
-    shell: wget http://{{node_ip}}:8080/jnlpJars/jenkins-cli.jar
-
   -  name: disable csrf so we can install plugin
      lineinfile:
        path: /etc/default/jenkins
@@ -160,6 +157,7 @@
         - docker-plugin
         - docker-workflow
         - ansible
+        - credentials-plugin
   - name: restart jenkins
     service:
      name: jenkins
@@ -193,7 +191,33 @@
      user: admin
      password: "{{ adminpwd.stdout }}"
 
+  - name: setup SSH user
+    jenkins_script:
+      script: |
+                import com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey
+                import com.cloudbees.plugins.credentials.CredentialsScope
+                import com.cloudbees.plugins.credentials.domains.Domain
 
+                def domain = Domain.global()
+
+                def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+
+                def keySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource('''{{lookup('file','files/privatekey')}}''')
+
+                def privateKeyCredential = new BasicSSHUserPrivateKey(
+                CredentialsScope.GLOBAL,
+                "web",      // id
+                "web",                      // username
+                keySource,                      // private key
+                "",                             // passphrase
+                "Web Key"            // description
+                 )
+                store.addCredentials(domain, privateKeyCredential)
+               
+      url: http://{{node_ip}}:8080/
+      user: admin
+      password: "{{ adminpwd.stdout }}"
+  
   handlers:
     - name: docker status
       service: name=docker state=started

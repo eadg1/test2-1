@@ -1,0 +1,56 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: Install for apt via  HTTPS
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+  
+  - name: Create web user
+    user:
+     name: web
+     shell: /bin/bash
+  - name: Add authorized keys
+    authorized_key:
+       user: web
+       key:   "{{ lookup('file', 'files/key.pub') }}"
+      
+  - name: install nginx and deps
+    apt: 
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - python3-pip 
+      - python3-dev 
+      - build-essential 
+      - libssl-dev 
+      - libffi-dev 
+      - python3-setuptools
+      - python3-venv
+
+  - name: Create a directory if it does not exist
+    file:
+      path: /home/web/www
+      state: directory
+      mode: '0755'
+  - name: Python virtualEnv
+    shell: |
+             cd /home/web/www
+             pip3 install flask
+             mkdir /var/www
+             ln -s /home/web/www /var/www/app
+             chown -R web /home/web
+  handlers:      
+  - name: restart sshd
+    service: name=sshd state=restarted
