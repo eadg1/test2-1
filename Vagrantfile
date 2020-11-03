@@ -26,18 +26,3 @@ Vagrant.configure("2") do |config|
             }
         end
     end
-#    (1..N).each do |i|
-#        config.vm.define "server-#{i}" do |server|
-#            server.vm.box = IMAGE_NAME
-#            server.vm.network "private_network", ip: "192.168.2.#{i + 11}"
-#            server.vm.hostname = "server-#{i}"
-#            server.vm.provision "ansible" do |ansible|
-#                ansible.playbook = "setup/server-playbook.yml"
-#                ansible.extra_vars = {
-#                    node_ip: "192.168.2.#{i + 10}",
-#                }
-            end
-#        end
-#    end
-#    
-#end
