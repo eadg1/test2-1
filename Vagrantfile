@@ -18,7 +18,8 @@ Vagrant.configure("2") do |config|
         jenkins.vm.box = IMAGE_NAME
         jenkins.vm.network "private_network", ip: "192.168.2.10"
         jenkins.vm.hostname = "jenkins"
-        jenkins.vm.provision "ansible" do |ansible|
+        jenkins.vm.provision "ansible_local" do |ansible|
+            ansible.version = "2.9.6"
             ansible.playbook = "setup/jenkins-playbook.yml"
             ansible.extra_vars = {
                 node_ip: "192.168.2.10",
