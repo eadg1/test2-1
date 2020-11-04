@@ -23,6 +23,24 @@
     authorized_key:
        user: web
        key:   "{{ lookup('file', 'files/key.pub') }}"
+       
+  - name: Make sure we have a 'deployers' group
+    group:
+     name: deployers
+     state: present
+
+  - name: Allow 'deployers' passwordless sudo
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^%deployers'
+      line: '%deployers ALL=(ALL) NOPASSWD: ALL'
+      validate: 'visudo -cf %s'
+  - name: Add sudoers
+    user:
+      name=web
+      groups=deployers
+      append=yes
       
   - name: install nginx and deps
     apt: 
@@ -38,19 +56,30 @@
       - libffi-dev 
       - python3-setuptools
       - python3-venv
-
+      - nginx
+      - uwsgi
+      - uwsgi-plugin-python3
+      
   - name: Create a directory if it does not exist
     file:
       path: /home/web/www
       state: directory
-      mode: '0755'
+      mode: '0775'
+      group: www-data
+      owner: web
+     
+  - name: Create www directory
+    file:
+      path: /var/www
+      state: directory
+      mode: '0775'
+  - name: Create symbolic link 
+    file:
+      src: /home/web/www
+      dest: /var/www/app
+      state: link
   - name: Python virtualEnv
     shell: |
              cd /home/web/www
              pip3 install flask
-             mkdir /var/www
-             ln -s /home/web/www /var/www/app
              chown -R web /home/web
-  handlers:      
-  - name: restart sshd
-    service: name=sshd state=restarted

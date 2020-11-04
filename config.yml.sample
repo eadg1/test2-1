@@ -1,2 +1,4 @@
 passwords:
- admin_user_pass: "YOUR_PASSWORD"
+ admin_user_pass: ""
+ git:
+  git_url: http://github.com/eadg1/testWeb.git

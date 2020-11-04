@@ -145,6 +145,7 @@
      url_password: "{{ adminpwd.stdout }}"
      url: http://{{node_ip}}:8080/
      with_dependencies: yes
+     
     with_items: 
         - git
         - git-client
@@ -158,6 +159,11 @@
         - docker-workflow
         - ansible
         - credentials-plugin
+    register: plugin_result
+    until: plugin_result is success
+    retries: 5
+    delay: 8
+
   - name: restart jenkins
     service:
      name: jenkins
@@ -171,7 +177,7 @@
      script: |
               import hudson.plugins.git.*;
               import hudson.triggers.*;
-              def scm = new hudson.plugins.git.GitSCM("http://github.com/eadg1/testWeb.git")
+              def scm = new hudson.plugins.git.GitSCM("{{git_url}}")
               scm.branches = [new BranchSpec("*/main")];
 
               def flowDefinition = new org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition(scm, "Jenkinsfile")
@@ -179,8 +185,7 @@
               def parent = Jenkins.instance
               def job = new org.jenkinsci.plugins.workflow.job.WorkflowJob(parent, "TestJob")
               job.definition = flowDefinition
-              
-              SCMTrigger trigger = new SCMTrigger("H/5 * * * *");
+              SCMTrigger trigger = new SCMTrigger("H/3 * * * *");
               job.addTrigger(trigger);
 
 
@@ -206,11 +211,11 @@
 
                 def privateKeyCredential = new BasicSSHUserPrivateKey(
                 CredentialsScope.GLOBAL,
-                "web",      // id
-                "web",                      // username
-                keySource,                      // private key
-                "",                             // passphrase
-                "Web Key"            // description
+                "web",      
+                "web",                      
+                keySource,           
+                "",                      
+                "Web Key"
                  )
                 store.addCredentials(domain, privateKeyCredential)
                
