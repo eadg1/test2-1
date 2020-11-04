@@ -14,7 +14,7 @@ Requirements:
    
 How to use:
 1 Clone this project to some directory on you host
- git clone https://github.com/eadg1/test2-1
+ * git clone https://github.com/eadg1/test2-1
  or download as zip archive and extract to target directory
 
 2 Rename config.yml.sample to config.yml in the root directory of the project
@@ -26,10 +26,10 @@ How to use:
 5 Rename key.pub.sample and privatekey.sample to key.pub and privatekey accordingly
 
 6 Navigate to your keypair location (cd ~/.ssh) or generate a keypair if you don't have one:
- on linux:
- - Create RSA keypair, leaving the passphrase empty (just press Enter)
- * ssh-keygen -t rsa
- on other OS: please refer your OS documentation
+ * on linux:
+  Create RSA keypair, leaving the passphrase empty (just press Enter)
+  ssh-keygen -t rsa
+ * on other OS: please refer your OS documentation
  
  7 Copy and id_rsa.pub contents into 'key.pub' file , and id_rsa contents - into 'privatekey' file or simply copy files under designated name to  the /setup/files folder
  
