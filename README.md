@@ -3,14 +3,14 @@ Jenkins+Nginx automatic deployment demo
 ###It will run two vagrant boxed, one for Web server and one for Jenkins.
 Requirement:
   - OS: 
-   *Linux v.5.x
+   * Linux v.5.x
   - Software:
-   *vagrant v.2.2.10
-   *git client (optionally)
+   * vagrant v.2.2.10
+   * git client (optionally)
   - Harwdare minimum/recommended:
-   *RAM: 4 GB / 8 GB
-   *HDD: 8 GB
-  *CPU @2Hhz / @3Hhz
+   * RAM: 4 GB / 8 GB
+   * HDD: 8 GB
+   * CPU @2Hhz / @3Hhz
    
 How to use:
 1 Clone this project to some directory on you host
@@ -28,7 +28,7 @@ How to use:
 6 Navigate to your keypair location (cd ~/.ssh) or generate a keypair if you don't have one:
  on linux:
  - Create RSA keypair, leaving the passphrase empty (just press Enter)
-    ssh-keygen -t rsa
+ * ssh-keygen -t rsa
  on other OS: please refer your OS documentation
  
  7 Copy and id_rsa.pub contents into 'key.pub' file , and id_rsa contents - into 'privatekey' file or simply copy files under designated name to  the /setup/files folder
@@ -38,12 +38,12 @@ How to use:
  9 Wait till boxes are up and running
  
  10 Navigate to http://192.168.2.10:8080 and login to Jenkins
-    username - jenkins, password - as assigned at step#3
+ * username - jenkins, password - as assigned at step#3
  
  11 Wait till job run&execute (you may select build running on left and watch the process under 'Console output')
  
  12 Navigate to http://192.168.8.21/
-    You should see 'Hello World!' 
+  * You should see 'Hello World!' 
     
     
  
