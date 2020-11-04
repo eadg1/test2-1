@@ -16,7 +16,7 @@ How to use:
 1 Clone this project to some directory on you host
  * git clone https://github.com/eadg1/test2-1
  
- or download as zip archive and extract to target directory
+or download as zip archive and extract to target directory
 
 2 Rename config.yml.sample to config.yml in the root directory of the project
 
@@ -29,7 +29,7 @@ How to use:
 6 Navigate to your keypair location (cd ~/.ssh) or generate a keypair if you don't have one:
  * on linux: Create RSA keypair, leaving the passphrase empty (just press Enter)
  
-   ssh-keygen -t rsa
+   * ssh-keygen -t rsa
    
  * on other OS: please refer your OS documentation
  
