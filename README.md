@@ -9,7 +9,7 @@ Requirement:
    *git client (optionally)
   - Harwdare minimum/recommended:
    *RAM: 4 GB / 8 GB
-   *HDD: 6 GB
+   *HDD: 8 GB
   *CPU @2Hhz / @3Hhz
    
 How to use:
