@@ -1,13 +1,13 @@
-Jenkins+Nginx automatic deployment demo
-###This project is supposed to demonstrate the automatic site checkout from git and deployment to web server by Jenkins upon successfull bild
-###It will run two vagrant boxed, one for Web server and one for Jenkins.
-Requirement:
-  - OS: 
+### Jenkins+Nginx automatic deployment demo
+### This project is supposed to demonstrate the automatic site checkout from git and deployment to web server by Jenkins upon successfull bild
+### It will run two vagrant boxed, one for Web server and one for Jenkins.
+Requirements:
+  #### OS: 
    * Linux v.5.x
-  - Software:
+  #### Software:
    * vagrant v.2.2.10
    * git client (optionally)
-  - Harwdare minimum/recommended:
+  #### Harwdare minimum/recommended:
    * RAM: 4 GB / 8 GB
    * HDD: 8 GB
    * CPU @2Hhz / @3Hhz
