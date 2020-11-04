@@ -3,7 +3,7 @@
 ### It will run two vagrant boxed, one for Web server and one for Jenkins.
 Requirements:
   #### OS: 
-   * Linux v.5.x
+   * Linux w/ kernel verssion  v.5.x or later
   #### Software:
    * vagrant v.2.2.10
    * git client (optionally)
