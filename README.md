@@ -12,7 +12,8 @@ Requirements:
    * HDD: 8 GB
    * CPU @2Hhz / @3Hhz
    
-How to use:
+#### How to use:
+
 1 Clone this project to some directory on you host
  * git clone https://github.com/eadg1/test2-1
  
