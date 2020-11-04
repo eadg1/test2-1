@@ -2,14 +2,14 @@ Jenkins+Nginx automatic deployment demo
 This project is supposed to demonstrate the automatic site checkout from git and deployment to web server by Jenkins upon successfull bild
 It will run two vagrant boxed, one for Web server and one for Jenkins.
 Requirement:
-  OS: Linux v.5.x
-  Software:
-   vagrant v.2.2.10
-   git client (optionally)
-  Harwdare minimum/recommended:
-   RAM: 4 GB / 8 GB
-   HDD: 6 GB
-   CPU @2Hhz / @3Hhz
+  - OS: Linux v.5.x
+  - Software:
+     vagrant v.2.2.10
+     git client (optionally)
+  - Harwdare minimum/recommended:
+     RAM: 4 GB / 8 GB
+     HDD: 6 GB
+     CPU @2Hhz / @3Hhz
    
 How to use:
 1 Clone this project to some directory on you host
@@ -27,7 +27,7 @@ How to use:
 6 Navigate to your keypair location (cd ~/.ssh) or generate a keypair if you don't have one:
  on linux:
  - Create RSA keypair, leaving the passphrase empty (just press Enter)
-   ssh-keygen -t rsa
+    ssh-keygen -t rsa
  on other OS: please refer your OS documentation
  
  7 Copy and id_rsa.pub contents into 'key.pub' file , and id_rsa contents - into 'privatekey' file or simply copy files under designated name to  the /setup/files folder
